@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onlíner Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #1e3a8a; --red: #ef4444; --bg: #f0f2f5; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Manrope', sans-serif; background: var(--bg); padding-bottom: 70px; }
+
+        header {
+            background: var(--blue); color: white;
+            padding: 14px 16px 10px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; flex: 1; }
+        .logo span { color: var(--red); }
+        .filter-btn {
+            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3);
+            color: white; padding: 8px 14px; border-radius: 10px;
+            font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 11px;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+        }
+        .filter-btn .badge {
+            background: var(--red); border-radius: 50%; width: 16px; height: 16px;
+            font-size: 9px; display: none; align-items: center; justify-content: center;
+        }
+        .filter-btn .badge.show { display: flex; }
+        .search-box { display: flex; gap: 8px; }
+        input[type=text] { flex: 1; padding: 11px 14px; border-radius: 12px; border: none; outline: none; font-size: 14px; font-family: 'Manrope', sans-serif; }
+        .btn-go { background: var(--red); color: white; border: none; padding: 0 22px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+
+        .active-filters { display: none; gap: 6px; flex-wrap: wrap; padding: 8px 16px 4px; background: var(--blue); }
+        .active-filters.show { display: flex; }
+        .af-tag { background: rgba(255,255,255,0.15); color: white; border-radius: 20px; padding: 4px 10px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .af-tag button { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 12px; }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e5e7eb; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card:active { transform: scale(0.96); }
+        .card img { width: 100%; height: 130px; object-fit: cover; background: #eee; }
+        .card-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-t { font-size: 11px; font-weight: 700; max-height: 28px; overflow: hidden; line-height: 1.3; color: #111; }
+        .card-p { color: var(--red); font-size: 15px; font-weight: 800; margin: 6px 0 2px; }
+        .card-l { font-size: 9px; color: #999; font-weight: 700; text-transform: uppercase; }
+        .status { grid-column: span 2; text-align: center; padding: 50px; font-weight: 700; color: var(--blue); font-size: 13px; }
+
+        /* PROFILE */
+        .profile-page { padding: 0 0 20px; }
+        .profile-hero {
+            background: linear-gradient(135deg, #1a1a2e, var(--blue));
+            padding: 28px 20px 24px; color: white;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+            text-align: center;
+        }
+        .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 32px; border: 2px solid rgba(255,255,255,0.3); }
+        .profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; }
+        .profile-sub { font-size: 12px; opacity: 0.65; }
+        .profile-stats { display: flex; gap: 24px; margin-top: 4px; }
+        .pstat { text-align: center; }
+        .pstat-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+        .pstat-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .profile-links { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .profile-link {
+            background: white; border-radius: 14px; padding: 14px 16px;
+            border: 1.5px solid #e5e7eb; display: flex; align-items: center;
+            gap: 12px; cursor: pointer; text-decoration: none; transition: 0.15s;
+        }
+        .profile-link:hover { border-color: var(--blue); }
+        .profile-link:active { transform: scale(0.98); }
+        .pl-icon { font-size: 20px; width: 34px; text-align: center; }
+        .pl-text h3 { font-size: 13px; font-weight: 700; color: #111; }
+        .pl-text p { font-size: 11px; color: #888; margin-top: 2px; }
+        .pl-arrow { color: #ccc; font-size: 18px; margin-left: auto; }
+
+        .section-header { padding: 16px 16px 8px; display: flex; align-items: center; justify-content: space-between; }
+        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--blue); }
+        .section-count { font-size: 11px; color: #999; font-weight: 700; }
+        .profile-divider { height: 1px; background: #f0f0f0; margin: 4px 16px; }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; border-top: 1px solid #e5e7eb;
+            display: flex; z-index: 150;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; border: none; background: none; cursor: pointer; gap: 3px; }
+        .nav-btn .nav-icon { font-size: 22px; line-height: 1; transition: 0.15s; }
+        .nav-btn .nav-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; transition: 0.15s; }
+        .nav-btn.active .nav-label { color: var(--blue); }
+        .nav-btn.active .nav-icon { transform: scale(1.15); }
+
+        /* DRAWER */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; backdrop-filter: blur(2px); }
+        .overlay.show { display: block; }
+        .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 24px 24px 0 0; z-index: 300; max-height: 88vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); padding-bottom: 80px; }
+        .drawer.open { transform: translateY(0); }
+        .drawer-handle { width: 40px; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 12px auto 0; }
+        .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid #f0f0f0; }
+        .drawer-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--blue); }
+        .drawer-close { background: #f3f4f6; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 16px; cursor: pointer; }
+        .f-section { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; }
+        .f-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 10px; }
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .cat-item { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 9px 12px; font-size: 11px; font-weight: 600; color: #444; cursor: pointer; background: white; text-align: left; display: flex; align-items: center; gap: 7px; }
+        .cat-item.active { background: var(--blue); border-color: var(--blue); color: white; }
+        .cat-item .emoji { font-size: 14px; }
+        .subcat-wrap { display: none; }
+        .subcat-wrap.show { display: block; }
+        .subcat-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .subcat-item { border: 1.5px solid #e5e7eb; border-radius: 20px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: #555; cursor: pointer; background: white; }
+        .subcat-item.active { background: var(--red); border-color: var(--red); color: white; }
+        .price-row { display: flex; gap: 10px; align-items: center; }
+        .price-input { flex: 1; border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; font-size: 13px; font-family: 'Manrope', sans-serif; font-weight: 600; outline: none; }
+        .price-input:focus { border-color: var(--blue); }
+        .price-sep { color: #bbb; font-weight: 700; }
+        .city-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .city-item { border: 1.5px solid #e5e7eb; border-radius: 20px; padding: 7px 14px; font-size: 11px; font-weight: 700; color: #555; cursor: pointer; background: white; }
+        .city-item.active { background: var(--blue); border-color: var(--blue); color: white; }
+        .drawer-footer { padding: 16px 20px; position: sticky; bottom: 0; background: white; border-top: 1px solid #f0f0f0; }
+        .apply-btn { width: 100%; background: var(--blue); color: white; border: none; border-radius: 14px; padding: 15px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; }
+        .reset-btn { width: 100%; background: none; color: #999; border: none; padding: 10px; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="logo">Onlíner <span>Pro</span></div>
+        <button class="filter-btn" id="openFilter">⚙ ФИЛЬТРЫ <span class="badge" id="filterBadge">0</span></button>
+    </div>
+    <div class="search-box">
+        <input id="searchInput" type="text" placeholder="Поиск (iphone, rtx 4060)...">
+        <button class="btn-go" id="goBtn">GO</button>
+    </div>
+</header>
+<div class="active-filters" id="activeFilters"></div>
+
+<!-- ЛЕНТА -->
+<div class="page active" id="page-feed">
+    <div id="items-container" class="grid"><div class="status">Синхронизация...</div></div>
+</div>
+
+<!-- ПРОФИЛЬ -->
+<div class="page" id="page-profile">
+    <div class="profile-page">
+        <div class="profile-hero">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-name" id="profileName">МОЙ ПРОФИЛЬ</div>
+            <div class="profile-sub">Onliner Барахолка</div>
+            <div class="profile-stats">
+                <div class="pstat">
+                    <div class="pstat-val" id="profileCount">—</div>
+                    <div class="pstat-label">Объявлений</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-links">
+            <a class="profile-link" href="https://baraholka.onliner.by/search.php?type=ufleamarket&id=3959631" target="_blank">
+                <div class="pl-icon">🔗</div>
+                <div class="pl-text"><h3>Открыть на Onliner</h3><p>Перейти на полную версию</p></div>
+                <div class="pl-arrow">›</div>
+            </a>
+            <a class="profile-link" href="https://baraholka.onliner.by/posting.php?mode=post" target="_blank">
+                <div class="pl-icon">➕</div>
+                <div class="pl-text"><h3>Подать объявление</h3><p>Разместить новое</p></div>
+                <div class="pl-arrow">›</div>
+            </a>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="section-header">
+            <span class="section-title">МОИ ОБЪЯВЛЕНИЯ</span>
+            <span class="section-count" id="myAdsCount"></span>
+        </div>
+        <div id="profile-container" class="grid">
+            <div class="status">Загрузка...</div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-feed" onclick="switchPage('feed')">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Лента</span>
+    </button>
+    <button class="nav-btn" id="nav-profile" onclick="switchPage('profile')">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Профиль</span>
+    </button>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+        <span class="drawer-title">ФИЛЬТРЫ</span>
+        <button class="drawer-close" id="closeFilter">✕</button>
+    </div>
+    <div class="f-section"><div class="f-label">Категория</div><div class="cat-grid" id="catGrid"></div></div>
+    <div class="f-section subcat-wrap" id="subcatSection"><div class="f-label">Подкатегория</div><div class="subcat-grid" id="subcatGrid"></div></div>
+    <div class="f-section">
+        <div class="f-label">Цена (р.)</div>
+        <div class="price-row">
+            <input class="price-input" id="priceFrom" type="number" placeholder="От">
+            <span class="price-sep">—</span>
+            <input class="price-input" id="priceTo" type="number" placeholder="До">
+        </div>
+    </div>
+    <div class="f-section"><div class="f-label">Город</div><div class="city-grid" id="cityGrid"></div></div>
+    <div class="drawer-footer">
+        <button class="apply-btn" id="applyBtn">ПРИМЕНИТЬ ФИЛЬТРЫ</button>
+        <button class="reset-btn" id="resetBtn">Сбросить все фильтры</button>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
